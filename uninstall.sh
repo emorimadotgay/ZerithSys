@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# ════════════════════════════════════════════════════════════════════════════
-#  ZerithSys  –  uninstaller  (Debian / Ubuntu / Arch / Fedora / macOS)
-#  Usage:
-#    curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.sh | bash
-#    curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.sh | bash -s -- --system
-# ════════════════════════════════════════════════════════════════════════════
 set -e
 
 B='\033[1m'; RED='\033[0;31m'; GRN='\033[0;32m'; YLW='\033[1;33m'; BLU='\033[0;34m'; NC='\033[0m'
@@ -14,14 +8,12 @@ DO_SYSTEM=0
 
 echo -e "${BLU}[*]${NC} Removing ZerithSys..."
 
-# pip uninstall
 PY=$(command -v python3 || command -v python || true)
 if [ -n "$PY" ]; then
     echo -e "${BLU}[*]${NC} pip uninstall zerithsys"
     $PY -m pip uninstall -y zerithsys 2>/dev/null || true
 fi
 
-# remove user install dir
 if [ "$DO_SYSTEM" -eq 1 ]; then
     echo -e "${BLU}[*]${NC} Removing /opt/zerithsys (sudo)"
     sudo rm -rf /opt/zerithsys

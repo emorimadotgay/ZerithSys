@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-smart = ["py-smart-open>=0.0.2"]   # optional: for SMART disk temps
+smart = ["py-smart-open>=0.0.2"]
 dev = [
     "build>=0.10.0",
     "setuptools>=61.0",
@@ -51,11 +51,10 @@ dev = [
 zerithsys = "main:main"
 
 [project.urls]
-Homepage   = "https://github.com/zerithsys/zerithsys"
-Issues     = "https://github.com/zerithsys/zerithsys/issues"
-Changelog  = "https://github.com/zerithsys/zerithsys/blob/main/CHANGELOG.md"
+Homepage   = "https://github.com/emorimadotgay/ZerithSys"
+Issues     = "https://github.com/emorimadotgay/ZerithSys/issues"
+Changelog  = "https://github.com/emorimadotgay/ZerithSys/blob/main/CHANGELOG.md"
 
-# ── package discovery ────────────────────────────────────────────────────────
 [tool.setuptools]
 py-modules  = ["main"]
 packages    = ["modules"]

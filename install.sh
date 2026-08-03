@@ -1,21 +1,11 @@
 #!/usr/bin/env bash
-# ════════════════════════════════════════════════════════════════════════════
-#  ZerithSys  –  one-liner installer  (Debian / Ubuntu / Arch / Fedora / macOS)
-#
-#  Usage:
-#    curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash
-#    curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash -s -- --update
-#    curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash -s -- --system
-# ════════════════════════════════════════════════════════════════════════════
 set -e
 
-# ── config ─────────────────────────────────────────────────────────────────
-REPO_URL="https://github.com/zerithsys/zerithsys"
-RAW_URL="https://raw.githubusercontent.com/zerithsys/zerithsys/main"
+REPO_URL="https://github.com/emorimadotgay/ZerithSys"
+RAW_URL="https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main"
 BRANCH="main"
 PY_MIN="3.8"
 
-# ── flags ──────────────────────────────────────────────────────────────────
 DO_UPDATE=0
 DO_SYSTEM=0
 for arg in "$@"; do
@@ -31,7 +21,6 @@ for arg in "$@"; do
     esac
 done
 
-# ── colours ────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
     B='\033[1m'; RED='\033[0;31m'; GRN='\033[0;32m'
     YLW='\033[1;33m'; BLU='\033[0;34m'; DIM='\033[2m'; NC='\033[0m'
@@ -39,7 +28,6 @@ else
     B=''; RED=''; GRN=''; YLW=''; BLU=''; DIM=''; NC=''
 fi
 
-# ── helpers ────────────────────────────────────────────────────────────────
 log()  { printf "${BLU}[*]${NC} %s\n" "$*"; }
 ok()   { printf "${GRN}[+]${NC} %s\n" "$*"; }
 warn() { printf "${YLW}[!]${NC} %s\n" "$*"; }
@@ -54,7 +42,6 @@ header() {
     printf "${NC}\n"
 }
 
-# ── detect OS / pkg manager ───────────────────────────────────────────────
 detect_os() {
     if   command -v apt-get >/dev/null 2>&1; then
         OS="debian"; PKG_INSTALL="sudo apt-get install -y"
@@ -79,7 +66,6 @@ detect_os() {
     log "Detected OS family: ${B}${OS}${NC}"
 }
 
-# ── python check ──────────────────────────────────────────────────────────
 check_python() {
     if ! command -v python3 >/dev/null 2>&1; then
         warn "Python 3 not found — installing it now"
@@ -110,7 +96,6 @@ check_python() {
     fi
 }
 
-# ── install destination ───────────────────────────────────────────────────
 choose_paths() {
     if [ "$DO_SYSTEM" -eq 1 ]; then
         INSTALL_DIR="/opt/zerithsys"
@@ -125,7 +110,6 @@ choose_paths() {
     fi
 }
 
-# ── try PyPI first, then source ───────────────────────────────────────────
 install_zerithsys() {
     log "Trying pip install zerithsys ${PIP_FLAGS}"
     if $PY -m pip install $PIP_FLAGS --quiet zerithsys 2>/dev/null; then
@@ -135,7 +119,6 @@ install_zerithsys() {
 
     warn "PyPI install failed — falling back to source from GitHub"
 
-    # Need git or curl+tar
     if command -v git >/dev/null 2>&1; then
         if [ -d "$INSTALL_DIR/.git" ]; then
             log "Updating existing repo in $INSTALL_DIR"
@@ -146,7 +129,6 @@ install_zerithsys() {
             $SUDO git clone --depth 1 --quiet "$REPO_URL" "$INSTALL_DIR"
         fi
     else
-        # Fallback: download tarball
         if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
             die "Need git OR (curl OR wget) to download ZerithSys"
         fi
@@ -166,14 +148,12 @@ install_zerithsys() {
     log "Installing Python dependencies"
     $PY -m pip install $PIP_FLAGS --quiet -r "$INSTALL_DIR/requirements.txt"
 
-    # Install our package so we get a proper console_script entry point
     log "Installing zerithsys package"
     $PY -m pip install $PIP_FLAGS --quiet "$INSTALL_DIR"
 
     ok "Installed from source to $INSTALL_DIR"
 }
 
-# ── post-install PATH hint ───────────────────────────────────────────────
 post_install() {
     printf "\n${B}${GRN}"
     printf "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n"
@@ -181,11 +161,9 @@ post_install() {
     printf "  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n"
     printf "${NC}\n"
 
-    # Locate the binary (pip creates it as a console_script)
     if [ "$DO_SYSTEM" -eq 1 ]; then
         BIN_PATH="$BIN_DIR/zerithsys"
     else
-        # The user-site bin is usually ~/.local/bin on Linux, ~/Library/Python/X.Y/bin on macOS
         BIN_PATH=$($PY -c "import sysconfig; print(sysconfig.get_path('scripts', f'{sysconfig.get_preferred_scheme()}user' if '--user' in '$PIP_FLAGS' else 'posix_user'))" 2>/dev/null || echo "$BIN_DIR")
         BIN_PATH="$BIN_PATH/zerithsys"
     fi
@@ -196,7 +174,6 @@ post_install() {
         warn "Binary not at expected location — try: ${B}$PY -m pip show zerithsys${NC}"
     fi
 
-    # PATH warning
     BIN_PARENT=$(dirname "$BIN_PATH" 2>/dev/null || echo "$BIN_DIR")
     if [[ ":$PATH:" != *":$BIN_PARENT:"* ]]; then
         printf "\n${YLW}[NOTE]${NC} $BIN_PARENT is not in your PATH.\n"
@@ -208,7 +185,6 @@ post_install() {
     fi
 }
 
-# ── main ──────────────────────────────────────────────────────────────────
 header
 detect_os
 check_python

@@ -21,16 +21,14 @@ from rich.text import Text
 from modules.ascii_art import get_ascii_art
 from modules.data_collector import DataCollector
 
-# ── locate stylesheet (works in dev, pip install, and one-liner installs) ────
 import pathlib as _pl
 _CSS_CANDIDATES = [
-    _pl.Path(__file__).parent / "app.tcss",                       # dev / source
-    _pl.Path(__file__).parent / ".." / "share" / "app.tcss",      # system pkg
-    _pl.Path.home() / ".zerithsys" / "app.tcss",                  # user install
+    _pl.Path(__file__).parent / "app.tcss",
+    _pl.Path(__file__).parent / ".." / "share" / "app.tcss",
+    _pl.Path.home() / ".zerithsys" / "app.tcss",
 ]
 _CSS_PATH = next((str(p) for p in _CSS_CANDIDATES if p.exists()), "app.tcss")
 
-# ── palette  (Tokyo Night default – overridden per theme) ─────────────────────
 PALETTE = {
     "tokyo-night": dict(
         cpu="#7aa2f7", mem="#9ece6a", gpu="#bb9af7",
@@ -56,7 +54,6 @@ PALETTE = {
 
 THEME_ORDER = list(PALETTE.keys())
 
-# ── small helpers ─────────────────────────────────────────────────────────────
 
 def _fmt(n: float, suffix: str = "B") -> str:
     """Human-readable byte size."""
@@ -112,10 +109,6 @@ def _temp(t: Optional[float]) -> str:
     return f"[green]COOL {t:3.0f}°[/green]"
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-#  PANELS
-# ═══════════════════════════════════════════════════════════════════════════════
-
 class OSPanel(Static):
     """Distro ASCII art + system overview."""
 
@@ -149,7 +142,6 @@ class OSPanel(Static):
         elif c.get("in_vm"):
             info_lines.append(f"[dim]Virt    [/dim][yellow][VM] {c['name']}[/yellow]")
 
-        # pad art lines to a fixed width
         art_w = max((len(l) for l in art_lines), default=0)
         rows  = max(len(art_lines), len(info_lines))
         lines = []
@@ -161,8 +153,6 @@ class OSPanel(Static):
 
         self.update("\n".join(lines))
 
-
-# ─── CPU ──────────────────────────────────────────────────────────────────────
 
 class CPUPanel(Static):
     """Per-core usage, frequency, temperature, sparkline."""
@@ -186,7 +176,7 @@ class CPUPanel(Static):
         ]
 
         cores = d["cores"]
-        show  = cores[:10]   # cap display at 10 to keep panel compact
+        show  = cores[:10]
         for core in show:
             pct  = core["usage"]
             freq = f"{core['freq_mhz']/1000:.2f}G" if core.get("freq_mhz") else " ?GHz"
@@ -226,8 +216,6 @@ class CPUPanel(Static):
         self.update("\n".join(lines))
 
 
-# ─── Memory ───────────────────────────────────────────────────────────────────
-
 class MemoryPanel(Static):
     """RAM and Swap with history sparkline."""
 
@@ -246,7 +234,6 @@ class MemoryPanel(Static):
             f"[dim]{'─' * 44}[/dim]",
         ]
 
-        # RAM bar
         rp = d["percent"]
         lines.append(
             f"[bold]RAM [/bold]{_bar(rp,18)} [{c}]{rp:5.1f}%[/{c}]"
@@ -260,7 +247,6 @@ class MemoryPanel(Static):
             f"[dim]    Cached [/dim]{_fmt(d['cached'])}"
         )
 
-        # Swap bar
         if d["swap_total"] > 0:
             sp = d["swap_percent"]
             lines.append(f"[dim]{'─' * 44}[/dim]")
@@ -274,21 +260,17 @@ class MemoryPanel(Static):
         else:
             lines.append(f"[dim]SWAP  (none)[/dim]")
 
-        # RAM speed
         spd = d.get("speed_mhz")
         if spd:
             lines.append(f"[dim]{'─' * 44}[/dim]")
             lines.append(f"[dim]Bus speed: [/dim][{c}]{spd} MT/s[/{c}]")
 
-        # Sparkline
         lines.append(f"[dim]{'─' * 44}[/dim]")
         sl = _spark(d.get("history", []), width=42, hi=100)
         lines.append(f"[dim] hist │[/dim][{c}]{sl}[/{c}][dim]│[/dim]")
 
         self.update("\n".join(lines))
 
-
-# ─── GPU ──────────────────────────────────────────────────────────────────────
 
 class GPUPanel(Static):
     """GPU(s) info: VRAM, usage, temperature, fan."""
@@ -339,8 +321,6 @@ class GPUPanel(Static):
         self.update("\n".join(lines))
 
 
-# ─── Storage ──────────────────────────────────────────────────────────────────
-
 class StoragePanel(Static):
     """Disk partitions, I/O speeds, SMART temperatures."""
 
@@ -356,7 +336,6 @@ class StoragePanel(Static):
 
         lines: list[str] = [f"[bold {c}]  STORAGE  [/bold {c}]"]
 
-        # Per-partition rows
         for p in d["partitions"]:
             pct = p["percent"]
             dev = p["device"].replace("/dev/", "")[:10]
@@ -370,7 +349,6 @@ class StoragePanel(Static):
                 f"  [dim]{_fmt(p['free'])} free / {_fmt(p['total'])}[/dim]"
             )
 
-            # SMART temp for this disk
             disk_dev = p["device"]
             import re as _re
             base = _re.sub(r"\d+$", "", disk_dev)
@@ -378,7 +356,6 @@ class StoragePanel(Static):
             if temp_v:
                 lines.append(f"[dim]  SMART temp: [/dim]{_temp(float(temp_v))}")
 
-        # I/O speeds
         lines.append(f"[dim]{'─' * 44}[/dim]")
         r_spd = d["io_read_bps"]
         w_spd = d["io_write_bps"]
@@ -386,7 +363,6 @@ class StoragePanel(Static):
             f"[dim]  Read  [/dim][{c}]{_spd(r_spd):>12}[/{c}]"
             f"  [dim]Write [/dim][{pal['proc']}]{_spd(w_spd):>12}[/{pal['proc']}]"
         )
-        # I/O sparklines
         hi = max(max(d["disk_r_history"] or [1]), max(d["disk_w_history"] or [1]), 1)
         sl_r = _spark(d["disk_r_history"], width=20, hi=hi)
         sl_w = _spark(d["disk_w_history"], width=20, hi=hi)
@@ -395,8 +371,6 @@ class StoragePanel(Static):
 
         self.update("\n".join(lines))
 
-
-# ─── Network ──────────────────────────────────────────────────────────────────
 
 class NetworkPanel(Static):
     """Network interfaces, IPs, live traffic, session totals."""
@@ -413,7 +387,6 @@ class NetworkPanel(Static):
 
         lines: list[str] = [f"[bold {c}]  NETWORK  [/bold {c}]"]
 
-        # Interfaces
         for iface in d["interfaces"][:6]:
             if not iface.get("ipv4") and not iface.get("is_up"):
                 continue
@@ -430,24 +403,20 @@ class NetworkPanel(Static):
             if iface.get("mac"):
                 lines.append(f"[dim]   MAC   [/dim][dim]{iface['mac']}[/dim]")
 
-        # Public IP
         lines.append(f"[dim]{'─' * 44}[/dim]")
         lines.append(f"[dim]  WAN IP  [/dim][{c}]{d['public_ip']}[/{c}]")
 
-        # Live speeds
         lines.append(f"[dim]{'─' * 44}[/dim]")
         lines.append(
             f"[dim]  ↓ Down  [/dim][{c}]{_spd(d['rx_bps']):>12}[/{c}]  "
             f"[dim]↑ Up    [/dim][{pal['stor']}]{_spd(d['tx_bps']):>12}[/{pal['stor']}]"
         )
 
-        # Session totals
         lines.append(
             f"[dim]  Session ↓ [/dim]{_fmt(d['session_rx'])}"
             f"[dim]  ↑ [/dim]{_fmt(d['session_tx'])}"
         )
 
-        # Sparklines
         hi = max(
             max(d["rx_history"] or [1]),
             max(d["tx_history"] or [1]),
@@ -461,12 +430,10 @@ class NetworkPanel(Static):
         self.update("\n".join(lines))
 
 
-# ─── Processes ────────────────────────────────────────────────────────────────
-
 class ProcessPanel(Vertical):
     """Interactive process list with DataTable."""
 
-    _sort_by: str = "cpu"   # "cpu" | "mem"
+    _sort_by: str = "cpu"
 
     def compose(self) -> ComposeResult:
         yield Static("", id="proc-header")
@@ -505,7 +472,6 @@ class ProcessPanel(Vertical):
         for p in procs:
             cpu_s = f"{p['cpu']:5.1f}"
             mem_s = f"{p['mem']:5.1f}"
-            # colour cpu/mem columns
             if p["cpu"] >= 50:
                 cpu_rich = f"[bold red]{cpu_s}[/bold red]"
             elif p["cpu"] >= 20:
@@ -530,10 +496,6 @@ class ProcessPanel(Vertical):
                 Text(str(p["threads"]), no_wrap=True),
             )
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-#  APPLICATION
-# ═══════════════════════════════════════════════════════════════════════════════
 
 class ZerithSysApp(App):
     """ZerithSys  –  cross-platform real-time system monitor."""
@@ -571,15 +533,12 @@ class ZerithSysApp(App):
             yield ProcessPanel()
         yield Footer()
 
-    # ── actions ───────────────────────────────────────────────────────────────
-
     def action_next_theme(self) -> None:
         """Cycle through colour themes."""
         self._theme_idx = (self._theme_idx + 1) % len(THEME_ORDER)
         name            = THEME_ORDER[self._theme_idx]
         self.pal        = PALETTE[name]
 
-        # Swap CSS class for background changes
         for t in THEME_ORDER:
             self.screen.remove_class(f"theme-{t}")
         if name != "tokyo-night":
@@ -617,8 +576,6 @@ class ZerithSysApp(App):
         except Exception as exc:
             self.notify(f"Kill failed: {exc}", severity="error")
 
-
-# ── entry-point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="ZerithSys – system monitor")

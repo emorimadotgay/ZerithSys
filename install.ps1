@@ -1,10 +1,3 @@
-# ════════════════════════════════════════════════════════════════════════════
-#  ZerithSys  –  one-liner installer  (Windows PowerShell)
-#
-#  Usage (run in PowerShell as Administrator for system install):
-#    irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex
-#    irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex -Args @('--user')
-# ════════════════════════════════════════════════════════════════════════════
 [CmdletBinding()]
 param(
     [switch]$Update,
@@ -21,12 +14,10 @@ if ($Help) {
     exit 0
 }
 
-# ── config ───────────────────────────────────────────────────────────────
-$RepoUrl    = "https://github.com/zerithsys/zerithsys"
-$RawUrl     = "https://raw.githubusercontent.com/zerithsys/zerithsys/main"
+$RepoUrl    = "https://github.com/emorimadotgay/ZerithSys"
+$RawUrl     = "https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main"
 $Branch     = "main"
 
-# ── helpers ──────────────────────────────────────────────────────────────
 function Write-Header {
     Write-Host ""
     Write-Host "  ============================================" -ForegroundColor Cyan
@@ -41,7 +32,6 @@ function Write-Ok     { param($msg) Write-Host "[+] $msg" -ForegroundColor Green
 function Write-Warn   { param($msg) Write-Host "[!] $msg" -ForegroundColor Yellow }
 function Write-Err    { param($msg) Write-Host "[x] $msg" -ForegroundColor Red }
 
-# ── locate Python ────────────────────────────────────────────────────────
 function Find-Python {
     $candidates = @("python", "python3", "py")
     foreach ($cmd in $candidates) {
@@ -57,7 +47,6 @@ function Find-Python {
     return $null
 }
 
-# ── install Python if missing ───────────────────────────────────────────
 function Install-Python {
     Write-Warn "Python not found on PATH"
     Write-Host ""
@@ -74,7 +63,6 @@ function Install-Python {
         ) -Wait -PassThru
         Remove-Item $installer -Force
         if ($proc.ExitCode -ne 0) { Write-Err "Installer exited with code $($proc.ExitCode)"; exit 1 }
-        # refresh env
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + `
                     [System.Environment]::GetEnvironmentVariable("Path", "User")
         Write-Ok "Python installed. Please re-run this script in a NEW terminal."
@@ -85,16 +73,14 @@ function Install-Python {
     }
 }
 
-# ── install ZerithSys ───────────────────────────────────────────────────
 function Install-ZerithSys {
     $python = Find-Python
     if (-not $python) { Install-Python }
-    $python = Find-Python   # re-resolve
+    $python = Find-Python
 
     $pipFlag = if ($System) { "" } else { "--user" }
     $flags   = @($pipFlag) | Where-Object { $_ -ne "" }
 
-    # Try PyPI first
     Write-Step "Trying pip install zerithsys"
     $pypi = & $python -m pip install @flags --quiet zerithsys 2>&1
     if ($LASTEXITCODE -eq 0) {
@@ -111,7 +97,6 @@ function Install-ZerithSys {
     if (Test-Path $installDir) { Remove-Item -Recurse -Force $installDir }
     New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
-    # Download tarball
     $zip = "$env:TEMP\zerithsys.zip"
     Write-Step "Downloading from $RawUrl"
     Invoke-WebRequest -Uri "$RepoUrl/archive/$Branch.zip" -OutFile $zip -UseBasicParsing
@@ -132,7 +117,6 @@ function Install-ZerithSys {
     Write-Ok "Installed from source to $installDir"
 }
 
-# ── post-install: create launcher + PATH hint ───────────────────────────
 function Post-Install {
     Write-Host ""
     Write-Host "  ============================================" -ForegroundColor Green
@@ -140,7 +124,6 @@ function Post-Install {
     Write-Host "  ============================================" -ForegroundColor Green
     Write-Host ""
 
-    # Find the binary
     $python   = Find-Python
     $scripts  = & $python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt' if '$System' else 'nt_user'))"
     $batPath  = Join-Path $scripts "zerithsys.bat"
@@ -151,7 +134,6 @@ function Post-Install {
         Write-Warn "Launcher not found at expected location"
     }
 
-    # Add to user PATH if not present
     $scriptsLower = $scripts.ToLower()
     $userPath     = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($userPath -notmatch [regex]::Escape($scriptsLower)) {
@@ -169,7 +151,6 @@ function Post-Install {
     Write-Host ""
 }
 
-# ── main ────────────────────────────────────────────────────────────────
 Write-Header
 Install-ZerithSys
 Post-Install

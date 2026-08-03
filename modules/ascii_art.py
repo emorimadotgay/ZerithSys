@@ -4,8 +4,6 @@ Each logo is a plain string; colours are applied by the caller.
 """
 from __future__ import annotations
 
-# ── logos ────────────────────────────────────────────────────────────────────
-
 _UBUNTU = r"""
          _
      ---(_)
@@ -73,10 +71,7 @@ _GENERIC = r"""
  |_____|
 """
 
-# ── distro mapping ────────────────────────────────────────────────────────────
-
 _MAP: dict[str, tuple[str, str]] = {
-    # (art, primary_rich_color)
     "ubuntu":   (_UBUNTU,  "#E95420"),
     "debian":   (_DEBIAN,  "#A80030"),
     "arch":     (_ARCH,    "#1793D1"),
@@ -105,7 +100,6 @@ def get_ascii_art(os_name: str, distro: str) -> tuple[str, str]:
         if name in key:
             return art, color
 
-    # Fallback by OS family
     os_lower = os_name.lower()
     if "windows" in os_lower:
         return _WINDOWS, "#00ADEF"

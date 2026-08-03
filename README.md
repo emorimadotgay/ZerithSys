@@ -1,165 +1,65 @@
-# ZerithSys
+<p align="center">
+  <img src="https://i.postimg.cc/jjSyjZDT/Zerith-Sys-removebg-preview.png" alt="ZerithSys" height="180px">
+</p>
 
-> A modern, real-time system monitor — what `neofetch` should have been.
+<h3 align="center">ZerithSys</h3>
 
-Cross-platform TUI dashboard with deep hardware inspection, network traffic
-history, container/VM awareness, and four built-in TrueColor themes.
+<p align="center">
+  System monitor for Linux, macOS and Windows. CPU, RAM, GPU, disk, network, sensors and processes in one terminal dashboard.
+</p>
 
----
+<p align="center">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.8+-blue.svg"></a>
+</p>
 
-## One-line install
+<img src="https://i.postimg.cc/YC9SGVz4/Screenshot-2026-08-03-072655.png" align="right" height="220px">
 
-### Debian / Ubuntu / Arch / Fedora / macOS
+## Install
 
+Linux / macOS:
 ```bash
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.sh | bash
 ```
 
-### Windows (PowerShell)
-
+Windows (PowerShell):
 ```powershell
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.ps1 | iex
 ```
 
-That's it. Run `zerithsys` from any terminal.
+Then run `zerithsys`.
 
-### From PyPI
+## Keys
 
-```bash
-pip install --user zerithsys
-```
+`q` quit · `t` switch theme · `r` refresh · `c` sort by CPU · `s` sort by RAM · `k` kill process · `↑↓` move
 
-### From source
+## Themes
 
-```bash
-git clone https://github.com/zerithsys/zerithsys
-cd zerithsys
-pip install --user .
-zerithsys
-```
+`tokyo-night` (default), `dracula`, `nord`, `gruvbox`. Pass one with `--theme`.
 
----
+## Panels
 
-## Usage
+OS (distro logo, kernel, uptime, container/VM info) · CPU (per-core, freq, temp, fan, history) · Memory (RAM, swap, bus speed) · GPU (VRAM, load, temp, fan) · Storage (partitions, I/O, SMART temp) · Network (IPs, WAN, live up/down) · Processes (sortable, killable)
 
-```bash
-zerithsys                    # launch with default Tokyo Night theme
-zerithsys --theme dracula    # Dracula palette
-zerithsys --theme nord       # Nord palette
-zerithsys --theme gruvbox    # Gruvbox palette
-```
+## Optional
 
-### Keyboard
-
-| Key | Action              |
-|-----|---------------------|
-| `q` | Quit                |
-| `t` | Cycle theme         |
-| `r` | Force refresh       |
-| `c` | Sort by CPU         |
-| `s` | Sort by memory      |
-| `k` | Kill selected PID   |
-| `↑↓` | Navigate processes |
-
-### Mouse
-
-- scroll inside the dashboard
-- click a process row to focus it, then press `k` to kill
-
----
-
-## Features
-
-| Area            | What's shown                                                 |
-|-----------------|--------------------------------------------------------------|
-| **Header**      | distro ASCII art, OS, kernel, uptime, host, user, arch       |
-| **CPU**         | per-core usage, frequency, temperature, sparkline, fan RPM   |
-| **Memory**      | RAM / swap with cached, bus speed (MT/s), 60-sample history  |
-| **GPU**         | NVIDIA / AMD / Intel — VRAM, load, temperature, fan %        |
-| **Storage**     | mount points, free / total, R/W speed, SMART disk temps      |
-| **Network**     | IPv4 / IPv6 / MAC, WAN IP, live ↓/↑ speed, session totals    |
-| **Processes**   | top-20 by CPU or memory, running / sleeping count            |
-
-### Auto-detect & fallback
-
-- Detects Linux (Debian / Ubuntu / Arch / Fedora), macOS and Windows
-- Reads CPU temps from `psutil.sensors_temperatures()` (coretemp / k10temp / zenpower / acpitz …)
-- Reads GPU data from `nvidia-smi` / `rocm-smi` when present, otherwise Intel iGPU basic
-- Reads SMART disk temps via `smartctl` (Linux only)
-- Detects container runtime (Docker, LXC) and hypervisor (QEMU, VMware, VirtualBox, Hyper-V, Xen)
-
-### Performance
-
-- All system calls run on a background thread — the UI never blocks
-- GPU / SMART data cached for 30 s (rarely changes)
-- Panel refreshes are staggered: 2 / 2.5 / 3 / 4 / 5 / 10 s
-- Process iteration cached for 5 s
-
----
+Install any of these for more data: `nvidia-smi` (NVIDIA GPU), `rocm-smi` (AMD GPU), `smartmontools` (disk temp), `lm-sensors` (more CPU temps). All optional — ZerithSys works without them.
 
 ## Update / Uninstall
 
-### Update
-
 ```bash
-# Linux / macOS
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash -s -- --update
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.sh | bash -s -- --update
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/uninstall.sh | bash
 ```
 
 ```powershell
-# Windows
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex -Args @('--Update')
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.ps1 | iex -Args @('--Update')
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/uninstall.ps1 | iex
 ```
-
-### Uninstall
-
-```bash
-# Linux / macOS
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.sh | bash
-```
-
-```powershell
-# Windows
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.ps1 | iex
-```
-
----
 
 ## Requirements
 
-- Python ≥ 3.8
-- ~30 MB disk space
-- Windows: Windows 10+
-- Linux: any modern distro (Debian 10+, Ubuntu 18.04+, Arch, Fedora 30+, Alpine)
-
-Optional (for extra sensors):
-- `nvidia-smi` for NVIDIA GPU telemetry
-- `rocm-smi` for AMD GPU telemetry
-- `smartctl` (smartmontools) for SMART disk temperatures
-- `sudo` for RAM bus speed (Linux)
-
----
-
-## File map
-
-```
-zerithsys/
-├── main.py                 ← Textual app entry point
-├── app.tcss                ← stylesheet
-├── pyproject.toml          ← pip-installable package definition
-├── install.sh              ← Linux / macOS installer
-├── install.ps1             ← Windows installer
-├── uninstall.sh            ← Linux / macOS uninstaller
-├── uninstall.ps1           ← Windows uninstaller
-├── requirements.txt        ← pip dependency list
-├── README.md
-└── modules/
-    ├── __init__.py
-    ├── ascii_art.py        ← per-distro logos
-    └── data_collector.py   ← background-threaded data collection
-```
-
----
+Python 3.8+. ~30 MB. Works on Windows 10+, Debian 10+, Ubuntu 18.04+, Arch, Fedora 30+, macOS, Alpine.
 
 ## License
 

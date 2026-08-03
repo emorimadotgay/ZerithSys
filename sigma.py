@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+                       
 """
 SysInfo Pro
 ===========
@@ -59,9 +59,9 @@ NET_LOG_DIR.mkdir(exist_ok=True)
 THEME_FILE_DEFAULT = APP_DIR / "theme.json"
 
 
-# =====================================================================
-#  ANSI / TrueColor engine (khong phu thuoc rich/colorama)
-# =====================================================================
+                                                                       
+                                                          
+                                                                       
 
 RESET = "\x1b[0m"
 BOLD = "\x1b[1m"
@@ -81,10 +81,10 @@ def supports_truecolor() -> bool:
     ct = os.environ.get("COLORTERM", "")
     if "truecolor" in ct or "24bit" in ct:
         return True
-    # Windows Terminal / modern cmd co ho tro ANSI tu Windows 10 1809+
+                                                                      
     if IS_WINDOWS:
         return True
-    return True  # da so terminal hien dai deu OK; nguoi dung co the --no-color
+    return True                                                                
 
 
 def hex_to_rgb(h: str):
@@ -133,24 +133,24 @@ def truncate_visible(s: str, width: int) -> str:
     return "".join(out) + tail
 
 
-COLOR_ENABLED = True  # se duoc set trong main() theo --no-color
+COLOR_ENABLED = True                                            
 
 
-# =====================================================================
-#  Theme
-# =====================================================================
+                                                                       
+        
+                                                                       
 
 DEFAULT_THEME = {
     "name": "aurora",
-    "accent": "#7DD3FC",     # xanh cyan - tieu de panel / vien
-    "accent2": "#C084FC",    # tim - nhan phu
-    "text": "#E5E7EB",       # trang xam - chu thuong
-    "muted": "#6B7280",      # xam mo - chu it quan trong
-    "ok": "#4ADE80",         # xanh la - binh thuong
-    "warn": "#FACC15",       # vang - canh bao
-    "crit": "#F87171",       # do - nguy hiem
+    "accent": "#7DD3FC",                                       
+    "accent2": "#C084FC",                    
+    "text": "#E5E7EB",                               
+    "muted": "#6B7280",                                  
+    "ok": "#4ADE80",                                
+    "warn": "#FACC15",                        
+    "crit": "#F87171",                       
     "bar_bg": "#1F2937",
-    "ascii_art": None        # duong dan file .txt ascii art tuy chinh (rong = dung mac dinh theo distro)
+    "ascii_art": None                                                                                    
 }
 
 
@@ -181,9 +181,9 @@ def level_color(theme, percent: float) -> str:
     return theme["ok"]
 
 
-# =====================================================================
-#  ASCII Art (nho, gon, xep canh panel thong tin - kieu neofetch)
-# =====================================================================
+                                                                       
+                                                                 
+                                                                       
 
 ASCII_ART = {
     "ubuntu": r"""
@@ -293,16 +293,16 @@ def get_ascii_art(distro_id: str, virt_type: str, custom_path: str = None):
     return art.strip("\n").splitlines()
 
 
-# =====================================================================
-#  Box ve bo tron + thanh bar + sparkline
-# =====================================================================
+                                                                       
+                                         
+                                                                       
 
 BOX_TL, BOX_TR, BOX_BL, BOX_BR = "\u256d", "\u256e", "\u2570", "\u256f"
 BOX_H, BOX_V = "\u2500", "\u2502"
 
-BLOCKS_V = " \u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588"   # 8 muc, dung cho sparkline
+BLOCKS_V = " \u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588"                              
 BLOCKS_H_FULL = "\u2588"
-BLOCKS_H_PARTIAL = " \u258f\u258e\u258d\u258c\u258b\u258a\u2589\u2588"  # 8 muc phu cho thanh bar muot
+BLOCKS_H_PARTIAL = " \u258f\u258e\u258d\u258c\u258b\u258a\u2589\u2588"                                
 
 
 def sparkline(values, width: int) -> str:
@@ -388,9 +388,9 @@ def equalize_height(panels_rendered, accents):
     return result
 
 
-# =====================================================================
-#  Thu thap thong tin: OS / Virtualization / Container limits
-# =====================================================================
+                                                                       
+                                                             
+                                                                       
 
 def run_cmd(cmd, timeout=2):
     try:
@@ -432,7 +432,7 @@ def detect_virtualization():
                         return {"type": "May ao (VM)", "engine": hint}
         elif IS_MACOS:
             out = run_cmd(["sysctl", "-n", "machdep.cpu.brand_string"])
-            # macOS hiem khi chay trong container/VM theo cach nay; giu Physical
+                                                                                
     except Exception:
         pass
     return info
@@ -523,9 +523,9 @@ def get_uptime_str():
     return " ".join(parts)
 
 
-# =====================================================================
-#  CPU
-# =====================================================================
+                                                                       
+      
+                                                                       
 
 def get_cpu_name():
     if IS_LINUX:
@@ -587,9 +587,9 @@ def get_cpu_info(percpu_percent, cpu_limit_cores=None):
     return info
 
 
-# =====================================================================
-#  Cam bien: nhiet do CPU/GPU/O cung, quat, dien ap
-# =====================================================================
+                                                                       
+                                                   
+                                                                       
 
 def get_sensors():
     """Tra ve dict: {temps: {...}, fans: {...}, note: str-or-None}"""
@@ -614,7 +614,7 @@ def get_sensors():
         if not result["temps"] and not result["fans"]:
             result["note"] = "Khong doc duoc sensor (thu: sudo apt install lm-sensors && sudo sensors-detect)"
     elif IS_WINDOWS:
-        # Windows khong co API chuan mien phi; can OpenHardwareMonitor/LibreHardwareMonitor + WMI namespace rieng.
+                                                                                                                  
         try:
             out = run_cmd([
                 "powershell", "-Command",
@@ -642,9 +642,9 @@ def get_sensors():
     return result
 
 
-# =====================================================================
-#  GPU (khong bat buoc cai them thu vien - dung tool CLI co san)
-# =====================================================================
+                                                                       
+                                                                
+                                                                       
 
 def get_gpu_info():
     gpus = []
@@ -706,9 +706,9 @@ def _safe_float(v):
         return None
 
 
-# =====================================================================
-#  RAM & Swap
-# =====================================================================
+                                                                       
+             
+                                                                       
 
 def get_ram_speed_mts():
     """Toc do bus RAM (MT/s) - chi Linux + can quyen root de dmidecode."""
@@ -744,9 +744,9 @@ def get_memory_info(mem_limit_container=None):
     }
 
 
-# =====================================================================
-#  Disk / Storage / I/O realtime
-# =====================================================================
+                                                                       
+                                
+                                                                       
 
 def get_disk_partitions():
     parts = []
@@ -790,9 +790,9 @@ def get_disk_temps(sensors_temps):
     return disk_temps
 
 
-# =====================================================================
-#  Network: toc do realtime + LICH SU bang thong (session & hom nay)
-# =====================================================================
+                                                                       
+                                                                    
+                                                                       
 
 class NetHistory:
     """Ghi lich su bang thong: giu trong RAM (session, sparkline) va ghi
@@ -885,9 +885,9 @@ def get_public_ip(timeout=1.5):
         return None
 
 
-# =====================================================================
-#  Processes
-# =====================================================================
+                                                                       
+            
+                                                                       
 
 def get_top_processes(n=6, sort_by="cpu"):
     procs = []
@@ -906,9 +906,9 @@ def get_top_processes(n=6, sort_by="cpu"):
     return procs[:n], total_procs
 
 
-# =====================================================================
-#  Helpers dinh dang
-# =====================================================================
+                                                                       
+                    
+                                                                       
 
 def human_bytes(n, per_sec=False):
     if n is None:
@@ -928,9 +928,9 @@ def human_temp(c):
     return f"{c:.0f}\u00b0C"
 
 
-# =====================================================================
-#  Ban phim (khong khoa terminal, cross-platform) - cho Interactive mode
-# =====================================================================
+                                                                       
+                                                                        
+                                                                       
 
 class KeyListener(threading.Thread):
     """Doc phim khong dong (non-blocking) tren rieng 1 thread, day vao queue."""
@@ -1003,9 +1003,9 @@ def kill_process_by_pid(pid: int) -> str:
         return f"Loi: {e}"
 
 
-# =====================================================================
-#  App state (giu du lieu giua cac lan refresh)
-# =====================================================================
+                                                                       
+                                               
+                                                                       
 
 class AppState:
     def __init__(self, theme, top_n=6, sort_by="cpu"):
@@ -1031,9 +1031,9 @@ class AppState:
         self.status_until = time.time() + secs
 
 
-# =====================================================================
-#  Xay dung tung panel
-# =====================================================================
+                                                                       
+                      
+                                                                       
 
 def panel_header(state: AppState, width_total: int):
     theme = state.theme
@@ -1092,7 +1092,7 @@ def panel_cpu(state: AppState, cpu_info: dict, width: int):
     if len(percpu) > 8:
         lines.append(fg(theme["muted"], f"... va {len(percpu)-8} core khac"))
 
-    # nhiet do CPU tu sensors (loc tu ten co 'core' / 'package' / 'cpu')
+                                                                        
     return lines
 
 
@@ -1217,9 +1217,9 @@ def panel_processes(state: AppState, procs, total_procs, width: int):
     return lines
 
 
-# =====================================================================
-#  Ghep toan bo panel thanh 1 khung hinh (frame)
-# =====================================================================
+                                                                       
+                                                
+                                                                       
 
 HELP_TEXT = (
     "[q] Thoat  [p] Doi sort CPU/RAM  [+/-] Toc do refresh  "
@@ -1290,9 +1290,9 @@ def build_frame(state: AppState, data: dict) -> str:
     return "\n".join(out)
 
 
-# =====================================================================
-#  Xuat snapshot JSON (cho script/monitoring khac doc lai)
-# =====================================================================
+                                                                       
+                                                          
+                                                                       
 
 def export_snapshot_json(state: AppState, data: dict, path: str):
     snap = {
@@ -1313,9 +1313,9 @@ def export_snapshot_json(state: AppState, data: dict, path: str):
     Path(path).write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-# =====================================================================
-#  Main loop
-# =====================================================================
+                                                                       
+            
+                                                                       
 
 THEME_PRESETS = ["aurora", "matrix", "sunset", "mono"]
 
@@ -1372,7 +1372,7 @@ def main():
         print(build_frame(state, data))
         return
 
-    # ---- Live mode ----
+                         
     key_q = queue.Queue()
     listener = None
     if not args.no_interactive:
@@ -1407,7 +1407,7 @@ def main():
                 sys.stdout.flush()
                 tick += 1
 
-            # xu ly phim trong khoang thoi gian ngu (khong chan luong)
+                                                                      
             t_end = time.time() + state.interval
             while time.time() < t_end:
                 try:

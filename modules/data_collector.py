@@ -17,8 +17,6 @@ from typing import Any, Dict, List, Optional
 
 import psutil
 
-# ── optional imports ──────────────────────────────────────────────────────────
-
 try:
     import cpuinfo as _cpuinfo_lib
     _HAS_CPUINFO = True
@@ -31,10 +29,8 @@ try:
 except ImportError:
     _HAS_REQUESTS = False
 
-PLATFORM = platform.system()   # 'Linux' | 'Windows' | 'Darwin'
+PLATFORM = platform.system()
 
-
-# ── helpers ───────────────────────────────────────────────────────────────────
 
 def _safe(fn, default=None, *args, **kwargs):
     """Call *fn* safely; return *default* on any exception."""
@@ -53,15 +49,12 @@ def _run(cmd: list[str], timeout: int = 3) -> Optional[str]:
         return None
 
 
-# ── main class ────────────────────────────────────────────────────────────────
-
 class DataCollector:
     """Collects and caches all system information with per-call deltas."""
 
-    HISTORY = 60   # number of samples kept per history deque
+    HISTORY = 60
 
     def __init__(self) -> None:
-        # ── history deques ────────────────────────────────────────────────
         self.cpu_history:     deque[float] = deque([0.0] * self.HISTORY, maxlen=self.HISTORY)
         self.ram_history:     deque[float] = deque([0.0] * self.HISTORY, maxlen=self.HISTORY)
         self.net_rx_history:  deque[float] = deque([0.0] * self.HISTORY, maxlen=self.HISTORY)
@@ -81,31 +74,24 @@ class DataCollector:
         self._container      = self._detect_container_vm()
         self._cpu_brand: str  = self._get_cpu_brand()
 
-        # warm-up: first call returns 0, discard it
         psutil.cpu_percent(percpu=True)
 
         threading.Thread(target=self._fetch_public_ip, daemon=True).start()
 
-        # ── snapshot cache (thread-safe) ──────────────────────────────────
         self._snapshot: Dict = {}
         self._lock      = threading.Lock()
         self._running   = True
 
-        # ── cache for slow-changing data (GPU / SMART) ────────────────────
         self._gpu_cache:  list[Dict] = []
         self._gpu_ts:     float      = 0.0
         self._smart_cache: Dict       = {}
         self._smart_ts:   float      = 0.0
-        self._SLOW_TTL = 30.0   # seconds between slow refreshes
+        self._SLOW_TTL = 30.0
 
-        # First collection runs synchronously so panels have data immediately
         self._collect_snapshot()
 
-        # Background thread handles all subsequent collections off the UI thread
         self._bg = threading.Thread(target=self._bg_loop, daemon=True)
         self._bg.start()
-
-    # ── background collection ──────────────────────────────────────────────
 
     def _bg_loop(self) -> None:
         """Collect a full snapshot every 2 s on a background thread."""
@@ -140,8 +126,6 @@ class DataCollector:
         """Trigger an immediate re-collection (called from UI actions)."""
         threading.Thread(target=self._collect_snapshot, daemon=True).start()
 
-    # ── one-time initialisation helpers ──────────────────────────────────────
-
     def _get_cpu_brand(self) -> str:
         if _HAS_CPUINFO:
             info = _safe(_cpuinfo_lib.get_cpu_info)
@@ -152,7 +136,6 @@ class DataCollector:
     def _detect_container_vm(self) -> Dict:
         out = {"type": None, "in_container": False, "in_vm": False, "name": "Bare Metal"}
 
-        # Docker / LXC
         if os.path.exists("/.dockerenv"):
             return {**out, "type": "docker", "in_container": True, "name": "Docker Container"}
 
@@ -166,7 +149,6 @@ class DataCollector:
                 if "lxc" in body:
                     return {**out, "type": "lxc", "in_container": True, "name": "LXC Container"}
 
-        # VM detection via DMI
         vm_map = {
             "QEMU":                "QEMU/KVM VM",
             "VMware":              "VMware VM",
@@ -203,8 +185,6 @@ class DataCollector:
         except Exception:
             self.public_ip = "Unavailable"
 
-    # ── delta helper ─────────────────────────────────────────────────────────
-
     def _elapsed(self) -> float:
         """Seconds since last call; resets the clock."""
         now = datetime.datetime.now()
@@ -212,10 +192,7 @@ class DataCollector:
         self._prev_ts = now
         return dt
 
-    # ── OS info ──────────────────────────────────────────────────────────────
-
     def get_os_info(self) -> Dict:
-        # Static parts cached once — only uptime is recalculated each call
         if not hasattr(self, '_os_static'):
             self._os_static = {
                 "os":        PLATFORM,
@@ -262,8 +239,6 @@ class DataCollector:
         if PLATFORM == "Darwin":
             return f"macOS {platform.mac_ver()[0]}"
         return PLATFORM
-
-    # ── CPU ──────────────────────────────────────────────────────────────────
 
     def get_cpu_info(self) -> Dict:
         phys  = psutil.cpu_count(logical=False) or 1
@@ -363,8 +338,6 @@ class DataCollector:
             pass
         return fans
 
-    # ── Memory ───────────────────────────────────────────────────────────────
-
     def get_memory_info(self) -> Dict:
         mem  = psutil.virtual_memory()
         swap = psutil.swap_memory()
@@ -384,7 +357,6 @@ class DataCollector:
         }
 
     def _get_ram_speed(self) -> Optional[int]:
-        # RAM speed never changes at runtime — cache forever after first probe
         if hasattr(self, '_ram_speed_cached'):
             return self._ram_speed_cached
         result = None
@@ -405,8 +377,6 @@ class DataCollector:
                     result = int(nums[0])
         self._ram_speed_cached = result
         return result
-
-    # ── Storage ──────────────────────────────────────────────────────────────
 
     def get_storage_info(self) -> Dict:
         partitions: list[Dict] = []
@@ -479,8 +449,6 @@ class DataCollector:
                                 pass
         return temps
 
-    # ── Network ──────────────────────────────────────────────────────────────
-
     def get_network_info(self) -> Dict:
         dt      = max(0.5, (datetime.datetime.now() - self._prev_ts).total_seconds())
         cur_net = _safe(psutil.net_io_counters)
@@ -496,7 +464,6 @@ class DataCollector:
         self.net_rx_history.append(rx_bps / 1024)
         self.net_tx_history.append(tx_bps / 1024)
 
-        # Build per-interface list
         addrs  = _safe(psutil.net_if_addrs, {})
         stats  = _safe(psutil.net_if_stats, {})
         ifaces: list[Dict] = []
@@ -535,12 +502,9 @@ class DataCollector:
             "tx_history":    list(self.net_tx_history),
         }
 
-    # ── GPU ──────────────────────────────────────────────────────────────────
-
     def get_gpu_info(self) -> list[Dict]:
         gpus: list[Dict] = []
 
-        # NVIDIA via nvidia-smi (cross-platform)
         out = _run(
             ["nvidia-smi",
              "--query-gpu=name,memory.total,memory.used,utilization.gpu,"
@@ -566,7 +530,6 @@ class DataCollector:
                     "fan_pct":      float(p[5]) if len(p) > 5 and p[5].replace(".", "").isdigit() else None,
                 })
 
-        # AMD via rocm-smi (Linux)
         if not gpus and PLATFORM == "Linux":
             out = _run(["rocm-smi", "--showtemp", "--showuse", "--json"])
             if out:
@@ -587,7 +550,6 @@ class DataCollector:
                 except Exception:
                     pass
 
-        # Intel iGPU basic detection (Linux)
         if not gpus and PLATFORM == "Linux":
             try:
                 for card in os.listdir("/sys/class/drm"):
@@ -623,8 +585,6 @@ class DataCollector:
                 pass
             self._gpu_ts = now
         return self._gpu_cache
-
-    # ── Processes ────────────────────────────────────────────────────────────
 
     def get_process_info(self) -> Dict:
         procs: list[Dict] = []

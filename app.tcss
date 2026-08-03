@@ -1,14 +1,9 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   app.tcss  –  ZerithSys Textual stylesheet  (Tokyo Night palette)
-   ═══════════════════════════════════════════════════════════════════════════ */
-
 Screen {
     background: #16161e;
     color: #c0caf5;
     layers: base overlay;
 }
 
-/* ── header & footer ─────────────────────────────────────────────────────── */
 Header {
     background: #1f2335;
     color: #7aa2f7;
@@ -43,7 +38,6 @@ Footer > .footer--description {
     color: #565f89;
 }
 
-/* ── main scroll area ─────────────────────────────────────────────────────── */
 #main-scroll {
     height: 1fr;
     background: #16161e;
@@ -52,7 +46,6 @@ Footer > .footer--description {
     overflow-x: hidden;
 }
 
-/* ── OS header panel (prominent, double border) ─────────────────────────── */
 OSPanel {
     border: double #7aa2f7;
     background: #1a1b26;
@@ -67,7 +60,6 @@ OSPanel:focus {
     border: double #bb9af7;
 }
 
-/* ── sensor row: CPU | RAM | GPU ────────────────────────────────────────── */
 #row-sensors {
     width: 100%;
     height: auto;
@@ -115,7 +107,6 @@ GPUPanel:focus {
     border: round #ff9e64;
 }
 
-/* ── I/O row: Storage | Network ─────────────────────────────────────────── */
 #row-io {
     width: 100%;
     height: auto;
@@ -149,7 +140,6 @@ NetworkPanel:focus {
     border: round #ff9e64;
 }
 
-/* ── process panel ──────────────────────────────────────────────────────── */
 ProcessPanel {
     border: round #f7768e;
     background: #1a1b26;
@@ -189,16 +179,10 @@ ProcessPanel DataTable > .datatable--even-row {
     background: #1e2030;
 }
 
-/* ── focus styling for all panels ──────────────────────────────────────── */
 Static:focus {
     background: #1e2030;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   THEME VARIANTS
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Dracula */
 .theme-dracula Screen          { background: #191622; color: #f8f8f2; }
 .theme-dracula Header           { background: #21222c; color: #bd93f9; border-bottom: tall #44475a; }
 .theme-dracula Footer           { background: #21222c; color: #6272a4; border-top: tall #44475a; }
@@ -215,7 +199,6 @@ Static:focus {
 .theme-dracula ProcessPanel DataTable > .datatable--even-row { background: #232136; }
 .theme-dracula ProcessPanel DataTable > .datatable--cursor   { background: #44475a; }
 
-/* Nord */
 .theme-nord Screen             { background: #292e39; color: #eceff4; }
 .theme-nord Header             { background: #2e3440; color: #88c0d0; border-bottom: tall #3b4252; }
 .theme-nord Footer             { background: #2e3440; color: #4c566a; border-top: tall #3b4252; }
@@ -232,7 +215,6 @@ Static:focus {
 .theme-nord ProcessPanel DataTable > .datatable--even-row { background: #333a47; }
 .theme-nord ProcessPanel DataTable > .datatable--cursor   { background: #434c5e; }
 
-/* Gruvbox */
 .theme-gruvbox Screen          { background: #1d2021; color: #ebdbb2; }
 .theme-gruvbox Header          { background: #282828; color: #fabd2f; border-bottom: tall #3c3836; }
 .theme-gruvbox Footer          { background: #282828; color: #7c6f64; border-top: tall #3c3836; }

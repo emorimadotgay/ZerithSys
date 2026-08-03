@@ -1,8 +1,3 @@
-# ════════════════════════════════════════════════════════════════════════════
-#  ZerithSys  –  uninstaller  (Windows PowerShell)
-#  Usage:
-#    irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.ps1 | iex
-# ════════════════════════════════════════════════════════════════════════════
 [CmdletBinding()]
 param([switch]$System)
 
@@ -10,14 +5,12 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "[*] Removing ZerithSys..." -ForegroundColor Blue
 
-# pip uninstall
 $python = Get-Command python -ErrorAction SilentlyContinue
 if ($python) {
     Write-Host "[*] pip uninstall zerithsys" -ForegroundColor Blue
     & python -m pip uninstall -y zerithsys 2>$null | Out-Null
 }
 
-# remove install dir
 $dir = if ($System)             { "$env:ProgramFiles\ZerithSys" }
        elseif ($env:ZERITHSYS_HOME) { $env:ZERITHSYS_HOME" }
        else                     { "$env:USERPROFILE\.zerithsys" }
@@ -27,13 +20,11 @@ if (Test-Path $dir) {
     Remove-Item -Recurse -Force $dir
 }
 
-# remove launcher from scripts
 $scripts = & python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt' if '$System' else 'nt_user'))" 2>$null
 if ($scripts -and (Test-Path "$scripts\zerithsys.bat")) {
     Remove-Item -Force "$scripts\zerithsys.bat"
 }
 
-# remove scripts dir from PATH
 if ($scripts) {
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($userPath -match [regex]::Escape($scripts)) {
