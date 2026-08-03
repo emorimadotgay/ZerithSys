@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   app.tcss  –  ZerithSys Textual stylesheet  (Tokyo Night palette)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+Screen {
+    background: #16161e;
+    color: #c0caf5;
+    layers: base overlay;
+}
+
+/* ── header & footer ─────────────────────────────────────────────────────── */
+Header {
+    background: #1f2335;
+    color: #7aa2f7;
+    text-style: bold;
+    height: 1;
+    border-bottom: tall #2a2f45;
+}
+
+Header > .header--title {
+    color: #bb9af7;
+    text-style: bold;
+}
+
+Header > .header--clock {
+    color: #7aa2f7;
+    text-style: bold;
+}
+
+Footer {
+    background: #1f2335;
+    color: #565f89;
+    height: 1;
+    border-top: tall #2a2f45;
+}
+
+Footer > .footer--key {
+    color: #7aa2f7;
+    text-style: bold;
+}
+
+Footer > .footer--description {
+    color: #565f89;
+}
+
+/* ── main scroll area ─────────────────────────────────────────────────────── */
+#main-scroll {
+    height: 1fr;
+    background: #16161e;
+    padding: 1 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ── OS header panel (prominent, double border) ─────────────────────────── */
+OSPanel {
+    border: double #7aa2f7;
+    background: #1a1b26;
+    padding: 1 2;
+    margin: 0 0 1 0;
+    height: auto;
+    min-height: 11;
+    width: 100%;
+}
+
+OSPanel:focus {
+    border: double #bb9af7;
+}
+
+/* ── sensor row: CPU | RAM | GPU ────────────────────────────────────────── */
+#row-sensors {
+    width: 100%;
+    height: auto;
+    margin: 0 0 1 0;
+}
+
+CPUPanel {
+    border: round #7aa2f7;
+    background: #1a1b26;
+    padding: 1 2;
+    margin: 0 1 0 0;
+    height: auto;
+    min-height: 18;
+    width: 1fr;
+}
+
+CPUPanel:focus {
+    border: round #9ece6a;
+}
+
+MemoryPanel {
+    border: round #9ece6a;
+    background: #1a1b26;
+    padding: 1 2;
+    margin: 0 1 0 0;
+    height: auto;
+    min-height: 18;
+    width: 1fr;
+}
+
+MemoryPanel:focus {
+    border: round #7aa2f7;
+}
+
+GPUPanel {
+    border: round #bb9af7;
+    background: #1a1b26;
+    padding: 1 2;
+    height: auto;
+    min-height: 18;
+    width: 1fr;
+}
+
+GPUPanel:focus {
+    border: round #ff9e64;
+}
+
+/* ── I/O row: Storage | Network ─────────────────────────────────────────── */
+#row-io {
+    width: 100%;
+    height: auto;
+    margin: 0 0 1 0;
+}
+
+StoragePanel {
+    border: round #ff9e64;
+    background: #1a1b26;
+    padding: 1 2;
+    margin: 0 1 0 0;
+    height: auto;
+    min-height: 16;
+    width: 1fr;
+}
+
+StoragePanel:focus {
+    border: round #2ac3de;
+}
+
+NetworkPanel {
+    border: round #2ac3de;
+    background: #1a1b26;
+    padding: 1 2;
+    height: auto;
+    min-height: 16;
+    width: 1fr;
+}
+
+NetworkPanel:focus {
+    border: round #ff9e64;
+}
+
+/* ── process panel ──────────────────────────────────────────────────────── */
+ProcessPanel {
+    border: round #f7768e;
+    background: #1a1b26;
+    padding: 1 2;
+    margin: 0 0 1 0;
+    height: auto;
+    min-height: 18;
+    width: 100%;
+}
+
+ProcessPanel:focus {
+    border: round #bb9af7;
+}
+
+ProcessPanel DataTable {
+    background: #1a1b26;
+    color: #c0caf5;
+    height: auto;
+}
+
+ProcessPanel DataTable > .datatable--header {
+    background: #1f2335;
+    color: #7aa2f7;
+    text-style: bold;
+}
+
+ProcessPanel DataTable > .datatable--cursor {
+    background: #364a82;
+    color: #c0caf5;
+}
+
+ProcessPanel DataTable > .datatable--odd-row {
+    background: #1a1b26;
+}
+
+ProcessPanel DataTable > .datatable--even-row {
+    background: #1e2030;
+}
+
+/* ── focus styling for all panels ──────────────────────────────────────── */
+Static:focus {
+    background: #1e2030;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME VARIANTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Dracula */
+.theme-dracula Screen          { background: #191622; color: #f8f8f2; }
+.theme-dracula Header           { background: #21222c; color: #bd93f9; border-bottom: tall #44475a; }
+.theme-dracula Footer           { background: #21222c; color: #6272a4; border-top: tall #44475a; }
+.theme-dracula #main-scroll     { background: #191622; }
+.theme-dracula OSPanel         { background: #1f1d2c; border: double #bd93f9; }
+.theme-dracula CPUPanel        { background: #1f1d2c; border: round #bd93f9; }
+.theme-dracula MemoryPanel     { background: #1f1d2c; border: round #50fa7b; }
+.theme-dracula GPUPanel        { background: #1f1d2c; border: round #ff79c6; }
+.theme-dracula StoragePanel    { background: #1f1d2c; border: round #ffb86c; }
+.theme-dracula NetworkPanel    { background: #1f1d2c; border: round #8be9fd; }
+.theme-dracula ProcessPanel    { background: #1f1d2c; border: round #ff5555; }
+.theme-dracula ProcessPanel DataTable                   { background: #1f1d2c; }
+.theme-dracula ProcessPanel DataTable > .datatable--odd-row  { background: #1f1d2c; }
+.theme-dracula ProcessPanel DataTable > .datatable--even-row { background: #232136; }
+.theme-dracula ProcessPanel DataTable > .datatable--cursor   { background: #44475a; }
+
+/* Nord */
+.theme-nord Screen             { background: #292e39; color: #eceff4; }
+.theme-nord Header             { background: #2e3440; color: #88c0d0; border-bottom: tall #3b4252; }
+.theme-nord Footer             { background: #2e3440; color: #4c566a; border-top: tall #3b4252; }
+.theme-nord #main-scroll       { background: #292e39; }
+.theme-nord OSPanel            { background: #2e3440; border: double #88c0d0; }
+.theme-nord CPUPanel           { background: #2e3440; border: round #88c0d0; }
+.theme-nord MemoryPanel        { background: #2e3440; border: round #a3be8c; }
+.theme-nord GPUPanel           { background: #2e3440; border: round #b48ead; }
+.theme-nord StoragePanel       { background: #2e3440; border: round #d08770; }
+.theme-nord NetworkPanel       { background: #2e3440; border: round #8fbcbb; }
+.theme-nord ProcessPanel       { background: #2e3440; border: round #bf616a; }
+.theme-nord ProcessPanel DataTable                   { background: #2e3440; }
+.theme-nord ProcessPanel DataTable > .datatable--odd-row  { background: #2e3440; }
+.theme-nord ProcessPanel DataTable > .datatable--even-row { background: #333a47; }
+.theme-nord ProcessPanel DataTable > .datatable--cursor   { background: #434c5e; }
+
+/* Gruvbox */
+.theme-gruvbox Screen          { background: #1d2021; color: #ebdbb2; }
+.theme-gruvbox Header          { background: #282828; color: #fabd2f; border-bottom: tall #3c3836; }
+.theme-gruvbox Footer          { background: #282828; color: #7c6f64; border-top: tall #3c3836; }
+.theme-gruvbox #main-scroll    { background: #1d2021; }
+.theme-gruvbox OSPanel         { background: #282828; border: double #fabd2f; }
+.theme-gruvbox CPUPanel        { background: #282828; border: round #83a598; }
+.theme-gruvbox MemoryPanel     { background: #282828; border: round #b8bb26; }
+.theme-gruvbox GPUPanel        { background: #282828; border: round #d3869b; }
+.theme-gruvbox StoragePanel    { background: #282828; border: round #fabd2f; }
+.theme-gruvbox NetworkPanel    { background: #282828; border: round #8ec07c; }
+.theme-gruvbox ProcessPanel    { background: #282828; border: round #fb4934; }
+.theme-gruvbox ProcessPanel DataTable                   { background: #282828; }
+.theme-gruvbox ProcessPanel DataTable > .datatable--odd-row  { background: #282828; }
+.theme-gruvbox ProcessPanel DataTable > .datatable--even-row { background: #2d2d2d; }
+.theme-gruvbox ProcessPanel DataTable > .datatable--cursor   { background: #3c3836; }
