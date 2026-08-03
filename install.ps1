@@ -5,7 +5,7 @@ param(
     [switch]$Help
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 if ($Help) {
     Write-Host "Usage: install.ps1 [-Update] [-System]"
@@ -37,7 +37,11 @@ function Find-Python {
     foreach ($cmd in $candidates) {
         $p = Get-Command $cmd -ErrorAction SilentlyContinue
         if ($p) {
-            $ver = & $cmd -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>$null
+            try {
+                $ver = & $cmd -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>$null
+            } catch {
+                $ver = $null
+            }
             if ($ver) {
                 Write-Ok "Found Python $ver  ($($p.Source))"
                 return $cmd
@@ -55,7 +59,12 @@ function Install-Python {
         $url = "https://www.python.org/ftp/python/3.12.7/python-3.12.7-amd64.exe"
         $installer = "$env:TEMP\python-installer.exe"
         Write-Step "Downloading $url"
-        Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+        } catch {
+            Write-Err "Download failed: $_"
+            exit 1
+        }
         Write-Step "Running installer (silent, add-to-PATH)…"
         $proc = Start-Process -FilePath $installer -ArgumentList @(
             "/quiet", "InstallAllUsers=1", "PrependPath=1",
@@ -73,22 +82,39 @@ function Install-Python {
     }
 }
 
+function Invoke-Pip {
+    param(
+        [string]$Python,
+        [string[]]$Flags,
+        [string[]]$Args
+    )
+    $allArgs = @("-m", "pip", "install") + $Flags + $Args
+    $p = Start-Process -FilePath $Python -ArgumentList $allArgs -NoNewWindow -Wait -PassThru -RedirectStandardError "$env:TEMP\zerithsys-pip.err" -RedirectStandardOutput "$env:TEMP\zerithsys-pip.out"
+    $LASTEXITCODE = $p.ExitCode
+    if ($p.ExitCode -ne 0 -and (Test-Path "$env:TEMP\zerithsys-pip.err")) {
+        $errOut = Get-Content "$env:TEMP\zerithsys-pip.err" -Raw -ErrorAction SilentlyContinue
+        if ($errOut) { Write-Host $errOut.Trim() -ForegroundColor DarkGray }
+    }
+    Remove-Item "$env:TEMP\zerithsys-pip.err","$env:TEMP\zerithsys-pip.out" -ErrorAction SilentlyContinue
+    return $p.ExitCode
+}
+
 function Install-ZerithSys {
     $python = Find-Python
     if (-not $python) { Install-Python }
     $python = Find-Python
+    if (-not $python) { Write-Err "Python still not found. Aborting."; exit 1 }
 
     $pipFlag = if ($System) { "" } else { "--user" }
     $flags   = @($pipFlag) | Where-Object { $_ -ne "" }
 
     Write-Step "Trying pip install zerithsys"
-    $pypi = & $python -m pip install @flags --quiet zerithsys 2>&1
-    if ($LASTEXITCODE -eq 0) {
+    $rc = Invoke-Pip -Python $python -Flags $flags -Args @("zerithsys")
+    if ($rc -eq 0) {
         Write-Ok "Installed via PyPI"
         return
     }
-
-    Write-Warn "PyPI install failed — falling back to GitHub source"
+    Write-Warn "PyPI install failed (exit $rc) — falling back to GitHub source"
 
     $installDir = if ($env:ZERITHSYS_HOME) { $env:ZERITHSYS_HOME }
                   elseif ($System)          { "$env:ProgramFiles\ZerithSys" }
@@ -99,22 +125,43 @@ function Install-ZerithSys {
 
     $zip = "$env:TEMP\zerithsys.zip"
     Write-Step "Downloading from $RawUrl"
-    Invoke-WebRequest -Uri "$RepoUrl/archive/$Branch.zip" -OutFile $zip -UseBasicParsing
+    try {
+        Invoke-WebRequest -Uri "$RepoUrl/archive/$Branch.zip" -OutFile $zip -UseBasicParsing
+    } catch {
+        Write-Err "Download failed: $_"
+        exit 1
+    }
     Write-Step "Extracting to $installDir"
     Expand-Archive -Path $zip -DestinationPath $installDir -Force
-    Move-Item -Path (Join-Path $installDir "zerithsys-$Branch\*") -Destination $installDir -Force
-    Remove-Item (Join-Path $installDir "zerithsys-$Branch") -Recurse -Force
+    if (Test-Path (Join-Path $installDir "ZerithSys-$Branch")) {
+        Move-Item -Path (Join-Path $installDir "ZerithSys-$Branch\*") -Destination $installDir -Force
+        Remove-Item (Join-Path $installDir "ZerithSys-$Branch") -Recurse -Force
+    } elseif (Test-Path (Join-Path $installDir "zerithsys-$Branch")) {
+        Move-Item -Path (Join-Path $installDir "zerithsys-$Branch\*") -Destination $installDir -Force
+        Remove-Item (Join-Path $installDir "zerithsys-$Branch") -Recurse -Force
+    }
     Remove-Item $zip
 
     Write-Step "Installing dependencies"
-    & $python -m pip install @flags --quiet -r (Join-Path $installDir "requirements.txt")
-    if ($LASTEXITCODE -ne 0) { Write-Err "Failed to install requirements"; exit 1 }
+    $rc = Invoke-Pip -Python $python -Flags $flags -Args @("-r", (Join-Path $installDir "requirements.txt"))
+    if ($rc -ne 0) { Write-Err "Failed to install requirements (exit $rc)"; exit 1 }
 
     Write-Step "Installing zerithsys package"
-    & $python -m pip install @flags --quiet $installDir
-    if ($LASTEXITCODE -ne 0) { Write-Err "Failed to install package"; exit 1 }
+    $rc = Invoke-Pip -Python $python -Flags $flags -Args @($installDir)
+    if ($rc -ne 0) { Write-Err "Failed to install package (exit $rc)"; exit 1 }
 
     Write-Ok "Installed from source to $installDir"
+}
+
+function Find-Scripts-Path {
+    param([string]$Python, [bool]$IsSystem)
+    $scheme = if ($IsSystem) { "nt" } else { "nt_user" }
+    try {
+        $p = & $Python -c "import sysconfig; print(sysconfig.get_path('scripts', '$scheme'))" 2>$null
+        if ($p) { return $p }
+    } catch {}
+    if ($IsSystem) { return "$env:ProgramFiles\Python314\Scripts" }
+    return Join-Path $env:APPDATA "Python\Python314\Scripts"
 }
 
 function Post-Install {
@@ -125,13 +172,16 @@ function Post-Install {
     Write-Host ""
 
     $python   = Find-Python
-    $scripts  = & $python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt' if '$System' else 'nt_user'))"
-    $batPath  = Join-Path $scripts "zerithsys.bat"
+    $scripts  = Find-Scripts-Path -Python $python -IsSystem ([bool]$System)
+    $batPath  = Join-Path $scripts "zerithsys.exe"
+    $batAlt   = Join-Path $scripts "zerithsys.bat"
 
     if (Test-Path $batPath) {
         Write-Ok "Launcher: $batPath"
+    } elseif (Test-Path $batAlt) {
+        Write-Ok "Launcher: $batAlt"
     } else {
-        Write-Warn "Launcher not found at expected location"
+        Write-Warn "Launcher not found at expected location ($scripts)"
     }
 
     $scriptsLower = $scripts.ToLower()
