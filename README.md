@@ -19,12 +19,12 @@
 
 Linux / macOS:
 ```bash
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.sh | bash
 ```
 
 Windows (PowerShell):
 ```powershell
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.ps1 | iex
 ```
 
 Then run `zerithsys`.
@@ -48,13 +48,13 @@ Install any of these for more data: `nvidia-smi` (NVIDIA GPU), `rocm-smi` (AMD G
 ## Update / Uninstall
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.sh | bash -s -- --update
-curl -sSL https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.sh | bash
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.sh | bash -s -- --update
+curl -sSL https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/uninstall.sh | bash
 ```
 
 ```powershell
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/install.ps1 | iex -Args @('--Update')
-irm https://raw.githubusercontent.com/zerithsys/zerithsys/main/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/install.ps1 | iex -Args @('--Update')
+irm https://raw.githubusercontent.com/emorimadotgay/ZerithSys/main/uninstall.ps1 | iex
 ```
 
 ## Requirements
